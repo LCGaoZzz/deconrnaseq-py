@@ -1,0 +1,13 @@
+"case","use_scale","scope","median","p95","n"
+"mixtures_exact",FALSE,"full_function",0.11,0.155,11
+"mixtures_exact",FALSE,"core_df",0.0499999999999998,0.0800000000000001,11
+"mixtures_exact",FALSE,"core_matrix",0.0500000000000003,0.14,11
+"mixtures_exact",TRUE,"full_function",0.14,0.175,11
+"mixtures_exact",TRUE,"core_df",0.0700000000000003,0.15,11
+"mixtures_exact",TRUE,"core_matrix",0.0599999999999996,0.11,11
+"mixtures_noisy",FALSE,"full_function",0.140000000000001,0.225000000000001,11
+"mixtures_noisy",FALSE,"core_df",0.0700000000000003,0.0800000000000001,11
+"mixtures_noisy",FALSE,"core_matrix",0.129999999999999,0.175,11
+"mixtures_noisy",TRUE,"full_function",0.23,0.36,11
+"mixtures_noisy",TRUE,"core_df",0.0999999999999996,0.17,11
+"mixtures_noisy",TRUE,"core_matrix",0.100000000000001,0.215,11

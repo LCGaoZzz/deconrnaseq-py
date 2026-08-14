@@ -1,0 +1,49 @@
+sample_id,scenario,challenge_note,column_index_1based
+MIX_001,pure_boundary,100% T_cell; tests active inequality constraints,1
+MIX_002,pure_boundary,100% B_cell; tests active inequality constraints,2
+MIX_003,pure_boundary,100% NK_cell; tests active inequality constraints,3
+MIX_004,pure_boundary,100% Monocyte; tests active inequality constraints,4
+MIX_005,pure_boundary,100% Dendritic; tests active inequality constraints,5
+MIX_006,pure_boundary,100% Endothelial; tests active inequality constraints,6
+MIX_007,pure_boundary,100% Fibroblast; tests active inequality constraints,7
+MIX_008,pure_boundary,100% Epithelial; tests active inequality constraints,8
+MIX_009,balanced,equal fractions across all cell types,9
+MIX_010,pair_50_50,T_cell and B_cell,10
+MIX_011,pair_50_50,B_cell and NK_cell,11
+MIX_012,pair_50_50,NK_cell and Monocyte,12
+MIX_013,pair_50_50,Monocyte and Dendritic,13
+MIX_014,pair_50_50,Dendritic and Endothelial,14
+MIX_015,pair_50_50,Endothelial and Fibroblast,15
+MIX_016,pair_50_50,Fibroblast and Epithelial,16
+MIX_017,pair_50_50,Epithelial and T_cell,17
+MIX_018,sparse_3_component,70/20/10 sparse mixture,18
+MIX_019,sparse_3_component,70/20/10 sparse mixture,19
+MIX_020,sparse_3_component,70/20/10 sparse mixture,20
+MIX_021,sparse_3_component,70/20/10 sparse mixture,21
+MIX_022,sparse_3_component,70/20/10 sparse mixture,22
+MIX_023,sparse_3_component,70/20/10 sparse mixture,23
+MIX_024,sparse_3_component,70/20/10 sparse mixture,24
+MIX_025,sparse_3_component,70/20/10 sparse mixture,25
+MIX_026,rare_cell,T_cell at 0.5%,26
+MIX_027,rare_cell,B_cell at 0.5%,27
+MIX_028,rare_cell,NK_cell at 0.5%,28
+MIX_029,rare_cell,Monocyte at 0.5%,29
+MIX_030,rare_cell,Dendritic at 0.5%,30
+MIX_031,rare_cell,Endothelial at 0.5%,31
+MIX_032,rare_cell,Fibroblast at 0.5%,32
+MIX_033,rare_cell,Epithelial at 0.5%,33
+MIX_034,correlated_pair,T_cell and NK_cell share lineage markers,34
+MIX_035,correlated_pair,Monocyte and Dendritic share lineage markers,35
+MIX_036,correlated_pair,Endothelial and Fibroblast share lineage markers,36
+MIX_037,correlated_pair,Fibroblast and Epithelial share lineage markers,37
+MIX_038,correlated_pair,T_cell and B_cell share lineage markers,38
+MIX_039,correlated_pair,Dendritic and Fibroblast share lineage markers,39
+MIX_040,correlated_pair,T_cell and NK_cell share lineage markers,40
+MIX_041,correlated_pair,Monocyte and Dendritic share lineage markers,41
+MIX_042,dirichlet_diverse,dense random composition; alpha=0.65,42
+MIX_043,dirichlet_diverse,dense random composition; alpha=0.65,43
+MIX_044,dirichlet_diverse,dense random composition; alpha=0.65,44
+MIX_045,dirichlet_diverse,dense random composition; alpha=0.65,45
+MIX_046,dirichlet_diverse,dense random composition; alpha=0.65,46
+MIX_047,dirichlet_diverse,dense random composition; alpha=0.65,47
+MIX_048,dirichlet_diverse,dense random composition; alpha=0.65,48

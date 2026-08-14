@@ -1,0 +1,19 @@
+[package]
+name = "deconrnaseq-rust"
+version = "1.50.0"
+edition = "2021"
+license = "GPL-2.0-only"
+description = "Optional compiled backend for deconrnaseq-py (exact batched simplex-constrained least squares). Pure-Python fallback remains available."
+
+[lib]
+name = "deconrnaseq_rust"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.22", features = ["extension-module"] }
+numpy = "0.22"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1

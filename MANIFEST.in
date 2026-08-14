@@ -1,0 +1,28 @@
+# ---- package metadata & docs ------------------------------------------------
+include LICENSE
+include NOTICE
+include README.md
+include REPRODUCING.md
+include REPOSITORY.md
+include pyproject.toml
+include reproduce.py
+
+# ---- reproducibility assets -------------------------------------------------
+recursive-include tests *.py
+recursive-include examples *.py
+recursive-include benchmarks *.py *.md
+recursive-include test_data *.csv *.json *.md *.py *.R
+recursive-include r_baseline *.csv *.R
+
+# ---- optional Rust backend source (prebuilt wheel ships separately) ---------
+recursive-include rust *.toml *.rs
+include rust/Cargo.lock
+
+# ---- never ship build artifacts / scratch -----------------------------------
+prune rust/target
+prune .venv_verify
+prune dist
+prune build
+prune **/__pycache__
+global-exclude *.pyc *.pyo
+exclude src/deconrnaseq_py.egg-info/*

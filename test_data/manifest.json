@@ -1,0 +1,73 @@
+{
+  "dataset_id": "deconrnaseq_synthetic_v1",
+  "generated_at_utc": "2026-08-13T17:30:56.852Z",
+  "seed": 20260814,
+  "dimensions": {
+    "genes": 5000,
+    "samples": 48,
+    "cell_types": 8
+  },
+  "cell_types": [
+    "T_cell",
+    "B_cell",
+    "NK_cell",
+    "Monocyte",
+    "Dendritic",
+    "Endothelial",
+    "Fibroblast",
+    "Epithelial"
+  ],
+  "exact_identity": "mixtures_exact[g,s] = sum_c reference_signatures[g,c] * true_proportions[s,c]",
+  "files": [
+    {
+      "file": "reference_signatures.csv",
+      "bytes": 612054,
+      "sha256": "f307aafb4ba81617476006c3db8853b33e01ad6f805e676cb5dfb87b1e8e7c10"
+    },
+    {
+      "file": "mixtures_exact.csv",
+      "bytes": 3404922,
+      "sha256": "896c431994b92720f58da6d92b7fb19a172829d5ff5a82c28f42f8cf4125f4e3"
+    },
+    {
+      "file": "mixtures_noisy.csv",
+      "bytes": 3404732,
+      "sha256": "1d18d7fd40da14e7aecfadab393e46954ed4dcc851b82729e1b1b0708b3f8f6c"
+    },
+    {
+      "file": "true_proportions.csv",
+      "bytes": 6229,
+      "sha256": "244f85aac047571291719253d974faed8b139d22f03ba95821339c3f730fddc2"
+    },
+    {
+      "file": "gene_metadata.csv",
+      "bytes": 164858,
+      "sha256": "340f170a40796b972992d8730a8bed8245a7dab743b48e97eef057a543774555"
+    },
+    {
+      "file": "sample_metadata.csv",
+      "bytes": 2845,
+      "sha256": "3a06c85bbaf89e7efcf917e3d72cf3f7c692515886753f8ad81845a03ded35a0"
+    },
+    {
+      "file": "DeconRNASeq_test_data.xlsx",
+      "bytes": 5569748,
+      "sha256": "1937c7cf36b40bf8e3b4c2f60132b7c03ddf9a2609cc07e9c786bc7a5134ce73"
+    },
+    {
+      "file": "README.md",
+      "bytes": 1898,
+      "sha256": "b7a264c0e673ae22d223c46594ffacc894555816129f8b2462c880da99768ea7"
+    },
+    {
+      "file": "validate_dataset.py",
+      "bytes": 4790,
+      "sha256": "cbbdf10f516566711466ba05e3136ee6b34f0bc46503f6fe1cb93c5a448d1ee8"
+    },
+    {
+      "file": "run_r_baseline.R",
+      "bytes": 1380,
+      "sha256": "d89f1207be4d3013a9fa45818222726e170d4408b387eed61c663ab7fba6171c"
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+dataset,use_scale,py_full_median_ms,py_full_p95_ms,r_full_median_ms,r_full_p95_ms,speedup_full_vs_r
+exact,False,18.109,19.116,110.0,155.0,6.1
+exact,True,20.406,21.035,140.0,175.0,6.9
+noisy,False,18.439,19.954,140.0,225.0,7.6
+noisy,True,20.439,21.016,230.0,360.0,11.3

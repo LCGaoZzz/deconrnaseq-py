@@ -1,0 +1,63 @@
+cProfile of the pure-Python baseline (solve_lsei_enum, per-support Python loop)
+dataset: mixtures_exact.csv (5000 genes x 48 samples), 5 repetitions
+kernel python: 3.11.3, numpy 2.2.6
+
+         103425 function calls in 0.139 seconds
+
+   Ordered by: cumulative time
+   List reduced from 76 to 18 due to restriction <18>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        5    0.002    0.000    0.137    0.027 <omicos>:21(baseline_loop)
+        5    0.047    0.009    0.136    0.027 <repo>\src\deconrnaseq\solvers.py:64(solve_lsei_enum)
+     1275    0.010    0.000    0.030    0.000 <repo>\src\deconrnaseq\solvers.py:59(_objective)
+     1275    0.015    0.000    0.028    0.000 <python-env>\site-packages\numpy\linalg\_linalg.py:320(solve)
+     2550    0.001    0.000    0.018    0.000 <python-env>\site-packages\numpy\_core\einsumfunc.py:1057(einsum)
+     2550    0.017    0.000    0.017    0.000 {built-in method numpy._core._multiarray_umath.c_einsum}
+     1275    0.006    0.000    0.014    0.000 <python-env>\site-packages\numpy\lib\_index_tricks_impl.py:34(ix_)
+     3830    0.009    0.000    0.009    0.000 {method 'reduce' of 'numpy.ufunc' objects}
+     2550    0.001    0.000    0.008    0.000 {method 'any' of 'numpy.ndarray' objects}
+     2550    0.001    0.000    0.007    0.000 <python-env>\site-packages\numpy\_core\_methods.py:58(_any)
+     2550    0.002    0.000    0.006    0.000 <python-env>\site-packages\numpy\_core\numerictypes.py:471(issubdtype)
+     1280    0.001    0.000    0.005    0.000 {method 'all' of 'numpy.ndarray' objects}
+     1275    0.003    0.000    0.005    0.000 <python-env>\site-packages\numpy\linalg\_linalg.py:148(_commonType)
+     1280    0.001    0.000    0.004    0.000 <python-env>\site-packages\numpy\_core\_methods.py:67(_all)
+     5100    0.002    0.000    0.003    0.000 <python-env>\site-packages\numpy\_core\numerictypes.py:289(issubclass_)
+     1275    0.001    0.000    0.002    0.000 <python-env>\site-packages\numpy\_core\_ufunc_config.py:440(__enter__)
+     2550    0.001    0.000    0.002    0.000 <python-env>\site-packages\numpy\linalg\_linalg.py:123(_makearray)
+    14025    0.002    0.000    0.002    0.000 <python-env>\site-packages\numpy\_core\einsumfunc.py:1049(_einsum_dispatcher)
+
+
+
+
+================================================================================
+
+cProfile of bench_variants.baseline_loop — the pure-Python reference implementation
+(per-sample loop x per-support loop: 48 x 255 = 12240 np.linalg.solve calls per run)
+dataset: mixtures_exact.csv (5000 genes x 48 samples), 1 run
+kernel python: 3.11.3, numpy 2.2.6
+
+         992085 function calls in 1.093 seconds
+
+   Ordered by: internal time
+   List reduced from 74 to 16 due to restriction <16>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+       48    0.387    0.008    1.089    0.023 <repo>\src\deconrnaseq\solvers.py:64(solve_lsei_enum)
+    12240    0.103    0.000    0.226    0.000 <python-env>\site-packages\numpy\linalg\_linalg.py:320(solve)
+    12240    0.087    0.000    0.198    0.000 <repo>\src\deconrnaseq\solvers.py:59(_objective)
+    36768    0.084    0.000    0.084    0.000 {method 'reduce' of 'numpy.ufunc' objects}
+    24480    0.081    0.000    0.081    0.000 {built-in method numpy._core._multiarray_umath.c_einsum}
+    12240    0.057    0.000    0.131    0.000 <python-env>\site-packages\numpy\lib\_index_tricks_impl.py:34(ix_)
+    12240    0.023    0.000    0.043    0.000 <python-env>\site-packages\numpy\linalg\_linalg.py:148(_commonType)
+    24480    0.022    0.000    0.053    0.000 <python-env>\site-packages\numpy\_core\numerictypes.py:471(issubdtype)
+    48960    0.021    0.000    0.030    0.000 <python-env>\site-packages\numpy\_core\numerictypes.py:289(issubclass_)
+   134640    0.018    0.000    0.018    0.000 <python-env>\site-packages\numpy\_core\einsumfunc.py:1049(_einsum_dispatcher)
+   134640    0.015    0.000    0.015    0.000 {built-in method builtins.issubclass}
+    24529    0.014    0.000    0.014    0.000 {built-in method numpy.empty}
+    24480    0.013    0.000    0.020    0.000 <python-env>\site-packages\numpy\linalg\_linalg.py:123(_makearray)
+    24480    0.013    0.000    0.093    0.000 <python-env>\site-packages\numpy\_core\einsumfunc.py:1057(einsum)
+    24480    0.012    0.000    0.012    0.000 {method 'reshape' of 'numpy.ndarray' objects}
+    24480    0.012    0.000    0.074    0.000 {method 'any' of 'numpy.ndarray' objects}
+
+

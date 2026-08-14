@@ -1,0 +1,23 @@
+Copyright and attribution
+=========================
+
+deconrnaseq-py is a Python re-implementation of the Bioconductor R package
+**DeconRNASeq**, version 1.50.0 (Bioconductor 3.21, git commit 20915cd).
+
+Original R package authors
+--------------------------
+* Ting Gong <tinggong@gmail.com>
+* Joseph D. Szustakowski <joseph.szustakowski@novartis.com>
+
+Original source: https://bioconductor.org/packages/3.21/bioc/src/contrib/DeconRNASeq_1.50.0.tar.gz
+Original licence: GPL-2 (see the DESCRIPTION file of the R package).
+
+Port
+----
+The Python port (this repository) is a derivative work of the R package and
+is therefore distributed under the same licence: **GNU General Public
+License, version 2** (see LICENSE for the full text).
+
+The numerical algorithm — constrained least squares with a sum-to-one
+equality and non-negativity constraints, optionally on R-`scale()`d data —
+follows the R implementation `R/DeconRNASeq.R` of DeconRNASeq 1.50.0.

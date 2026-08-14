@@ -1,0 +1,5 @@
+case,use_scale,boundary_samples,baseline_enum_median_ms,candidate_enum_median_ms,enum_speedup,baseline_final_median_ms,candidate_final_median_ms,final_speedup,bitwise_identical
+exact,False,0,,,,0.135760,0.135468,1.002155,True
+exact,True,39,0.258706,0.250963,1.030853,1.134200,1.106334,1.025188,True
+noisy,False,35,0.260200,0.253732,1.025491,0.403402,0.399852,1.008878,True
+noisy,True,47,0.300728,0.290642,1.034702,1.161952,1.133512,1.025090,True

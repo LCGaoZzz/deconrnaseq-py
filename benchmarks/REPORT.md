@@ -122,3 +122,54 @@ work is one small batched LAPACK solve that NumPy already does well. The
 wheel as the default; install `deconrnaseq_rust` when the last factor-of-two
 matters. `backend="auto"` picks Rust when importable and falls back silently
 to NumPy otherwise; `drs.rust_available()` reports which is active.
+
+## Rust scratch-buffer reuse follow-up
+
+A small Rust-only follow-up reuses the KKT and RHS scratch buffers for all
+supports of the same size. Every buffer element is overwritten before use, so
+the support order, floating-point operations, feasibility tolerance, and strict
+tie comparison are unchanged.
+
+The candidate was compared with the wheel built from commit `668d7f9` in five
+alternating-process A/B rounds. Each process used one BLAS thread, 100 warmups,
+and 21 timing blocks (100 calls per block for the Rust enumeration and 50 for
+the complete core path). Values below are medians across the five rounds:
+
+| case | scale | boundary samples | Rust enum old -> new | enum speedup | complete core old -> new | core speedup |
+|---|---:|---:|---:|---:|---:|---:|
+| exact | off | 0 | not called | n/a | 0.135760 -> 0.135468 ms | 1.002x |
+| exact | on | 39 | 0.258706 -> 0.250963 ms | 1.031x | 1.134200 -> 1.106334 ms | 1.025x |
+| noisy | off | 35 | 0.260200 -> 0.253732 ms | 1.025x | 0.403402 -> 0.399852 ms | 1.009x |
+| noisy | on | 47 | 0.300728 -> 0.290642 ms | 1.035x | 1.161952 -> 1.133512 ms | 1.025x |
+
+The baseline and candidate SHA-256 hashes of the raw float64 outputs matched
+for the direct Rust kernel and complete core path in every applicable case,
+which establishes bitwise-identical results on the shipped benchmark. Raw
+summary values are in `results/rust_scratch_buffer_ab.csv`.
+
+## Complete Rust interior-KKT follow-up
+
+The next bounded change moves the equality KKT solve, interior/boundary
+classification, boundary collection, exact enumeration, and result scatter
+behind one Rust call. The NumPy backend is unchanged. If an older Rust wheel
+without the new symbol is installed, the Python package safely retains the
+former Python-KKT + Rust-enumeration path.
+
+The scratch-buffer wheel was frozen as the baseline before this change. Five
+alternating-process A/B rounds used one BLAS thread, 100 warmups, and 21 timing
+blocks per process (100 calls/block for the solver and 50 calls/block for the
+complete core). The table reports medians across the five process medians:
+
+| case | scale | boundary | solver old -> new | solver speedup | complete core old -> new | core speedup |
+|---|---:|---:|---:|---:|---:|---:|
+| exact | off | 0 | 0.010493 -> 0.002870 ms | **3.656x** | 0.133872 -> 0.123878 ms | **1.081x** |
+| exact | on | 39 | 0.280741 -> 0.253929 ms | **1.106x** | 1.069802 -> 1.032282 ms | **1.036x** |
+| noisy | off | 35 | 0.279171 -> 0.251126 ms | **1.112x** | 0.404272 -> 0.373104 ms | **1.084x** |
+| noisy | on | 47 | 0.322196 -> 0.291199 ms | **1.106x** | 1.123684 -> 1.066578 ms | **1.054x** |
+
+The largest old/new absolute difference was **4.44e-16** (approximately one
+float64 rounding unit at this scale). The largest difference from the shipped
+R 1.50.0 references remained **1.50e-14**, row-sum error remained at most
+**2.16e-14**, and every estimate remained non-negative. Thus every existing
+accuracy gate passes with several orders of magnitude of margin. Full summary
+values are in `results/rust_interior_kkt_ab.csv`.

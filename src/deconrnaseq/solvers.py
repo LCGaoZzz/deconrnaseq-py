@@ -297,6 +297,26 @@ def _solve_enum_rust(gram: np.ndarray, cross: np.ndarray) -> np.ndarray:
     )
 
 
+def _solve_interior_rust(
+    gram: np.ndarray, cross: np.ndarray, *, tol: float
+) -> np.ndarray:
+    import deconrnaseq_rust
+
+    return np.asarray(
+        deconrnaseq_rust.solve_lsei_interior(
+            np.ascontiguousarray(gram), np.ascontiguousarray(cross), tol
+        ),
+        dtype=np.float64,
+    )
+
+
+def _rust_has_interior_kernel() -> bool:
+    """Whether the installed wheel includes the one-call interior kernel."""
+    import deconrnaseq_rust
+
+    return hasattr(deconrnaseq_rust, "solve_lsei_interior")
+
+
 def solve_lsei_interior(
     gram: np.ndarray,
     cross: np.ndarray,
@@ -306,15 +326,18 @@ def solve_lsei_interior(
 ) -> np.ndarray:
     """Interior-first exact solver (the default for K <= 12).
 
-    One batched equality-only KKT solve handles every sample whose
-    unconstrained solution already satisfies x >= 0 (such a point is exactly
-    the constrained optimum).  Only the remaining boundary samples go through
-    the exact support enumeration — via the compiled Rust backend when
-    ``backend`` is "rust" (or "auto" and the wheel is installed), otherwise
-    via the pure-NumPy batched enumeration.
+    The Rust backend performs the equality KKT solve, feasibility
+    classification, exact boundary enumeration, and scatter in one compiled
+    call. The NumPy backend keeps the same batched equality solve and sends
+    only boundary samples through pure-NumPy enumeration. An older Rust wheel
+    safely uses the former hybrid path.
     """
     gram = np.ascontiguousarray(gram, dtype=np.float64)
     cross = np.ascontiguousarray(cross, dtype=np.float64)
+    use_rust = backend == "rust" or (backend == "auto" and rust_available())
+    if use_rust and _rust_has_interior_kernel():
+        return _solve_interior_rust(gram, cross, tol=tol)
+
     K, S = cross.shape
     kkt = np.empty((K + 1, K + 1), dtype=np.float64)
     kkt[:K, :K] = gram
@@ -329,7 +352,6 @@ def solve_lsei_interior(
     out = np.where(sol >= 0.0, sol, 0.0)
     if not interior.all():
         rest = np.flatnonzero(~interior)
-        use_rust = backend == "rust" or (backend == "auto" and rust_available())
         if use_rust:
             out[:, rest] = _solve_enum_rust(gram, cross[:, rest])
         else:
@@ -346,7 +368,7 @@ def solve_lsei(
 ) -> np.ndarray:
     """Dispatch to a solver.
 
-    ``auto``: interior-first exact method for K <= 12 (Rust-accelerated
+    ``auto``: interior-first exact method for K <= 12 (one-call Rust KKT and
     boundary enumeration when the optional ``deconrnaseq-rust`` wheel is
     installed and ``backend="auto"``), warm-started active-set for larger K.
     All methods solve the identical QP to float64 accuracy.

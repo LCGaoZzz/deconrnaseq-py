@@ -33,11 +33,11 @@ deconrnaseq_py/
 ├── rust/                         # OPTIONAL compiled backend (separate maturin project; NOT required)
 │   ├── Cargo.toml                #   pyo3 0.22 / numpy 0.22 / ndarray 0.16 (locked versions)
 │   ├── Cargo.lock                #   pinned dependency graph for reproducible builds
-│   ├── src/lib.rs                #   batched boundary-enumeration kernel; deconrnaseq falls back to NumPy
+│   ├── src/lib.rs                #   one-call interior KKT + exact boundary-enumeration kernel
 │   └── target/wheels/            #   (gitignored except the shipped prebuilt wheel for reviewers:
 │                                 #    deconrnaseq_rust-1.50.0-cp311-cp311-win_amd64.whl)
 │
-├── tests/                        # 49 pytest tests, all must pass (evidence: REPRODUCING.md §3)
+├── tests/                        # 52 pytest tests; optional extras may be explicitly skipped
 │   ├── conftest.py               #   fixtures; resolves test_data/ in-repo first, sibling layout as fallback
 │   ├── test_validation.py        #   rejection: NA/inf/negatives/duplicate genes/no common genes/genes<K
 │   ├── test_api.py               #   output structure, naming, alignment, known_prop RMSE, edge dims
@@ -59,6 +59,8 @@ deconrnaseq_py/
 │       ├── benchmark_results.csv     # 122 rows: full matrix incl. n=1/8/48 and synthetic 480/4800
 │       ├── full_call_timing.csv      # end-to-end deconrnaseq() vs R full_function
 │       ├── accuracy_results.csv      # every hard gate, measured values, pass flags
+│       ├── rust_scratch_buffer_ab.csv # 5-round old/new Rust A/B; bitwise identity + timing summary
+│       ├── rust_interior_kkt_ab.csv  # 5-round complete Rust-KKT A/B; speed + precision evidence
 │       └── profile_baseline_loop.txt # cProfile: why the faithful baseline is slow (12,240 tiny solves/run)
 │
 ├── examples/

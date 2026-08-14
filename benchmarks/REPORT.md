@@ -146,3 +146,30 @@ The baseline and candidate SHA-256 hashes of the raw float64 outputs matched
 for the direct Rust kernel and complete core path in every applicable case,
 which establishes bitwise-identical results on the shipped benchmark. Raw
 summary values are in `results/rust_scratch_buffer_ab.csv`.
+
+## Complete Rust interior-KKT follow-up
+
+The next bounded change moves the equality KKT solve, interior/boundary
+classification, boundary collection, exact enumeration, and result scatter
+behind one Rust call. The NumPy backend is unchanged. If an older Rust wheel
+without the new symbol is installed, the Python package safely retains the
+former Python-KKT + Rust-enumeration path.
+
+The scratch-buffer wheel was frozen as the baseline before this change. Five
+alternating-process A/B rounds used one BLAS thread, 100 warmups, and 21 timing
+blocks per process (100 calls/block for the solver and 50 calls/block for the
+complete core). The table reports medians across the five process medians:
+
+| case | scale | boundary | solver old -> new | solver speedup | complete core old -> new | core speedup |
+|---|---:|---:|---:|---:|---:|---:|
+| exact | off | 0 | 0.010493 -> 0.002870 ms | **3.656x** | 0.133872 -> 0.123878 ms | **1.081x** |
+| exact | on | 39 | 0.280741 -> 0.253929 ms | **1.106x** | 1.069802 -> 1.032282 ms | **1.036x** |
+| noisy | off | 35 | 0.279171 -> 0.251126 ms | **1.112x** | 0.404272 -> 0.373104 ms | **1.084x** |
+| noisy | on | 47 | 0.322196 -> 0.291199 ms | **1.106x** | 1.123684 -> 1.066578 ms | **1.054x** |
+
+The largest old/new absolute difference was **4.44e-16** (approximately one
+float64 rounding unit at this scale). The largest difference from the shipped
+R 1.50.0 references remained **1.50e-14**, row-sum error remained at most
+**2.16e-14**, and every estimate remained non-negative. Thus every existing
+accuracy gate passes with several orders of magnitude of margin. Full summary
+values are in `results/rust_interior_kkt_ab.csv`.

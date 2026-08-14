@@ -70,3 +70,42 @@ def test_rust_enum_is_repeatable_and_preserves_inputs(signatures, mixtures_noisy
     np.testing.assert_array_equal(actual_second, actual_first)
     np.testing.assert_array_equal(gram, gram_before)
     np.testing.assert_array_equal(cross, cross_before)
+
+
+@pytest.mark.skipif(not drs.rust_available(), reason="rust backend not installed")
+def test_rust_interior_is_repeatable_and_preserves_inputs(signatures, mixtures_noisy):
+    """Guard the complete one-call Rust interior and boundary path."""
+    import deconrnaseq_rust
+    from deconrnaseq.solvers import solve_lsei_interior
+
+    signature = np.ascontiguousarray(signatures.to_numpy(np.float64))
+    mixtures = np.ascontiguousarray(mixtures_noisy.to_numpy(np.float64))
+    gram = np.ascontiguousarray(signature.T @ signature)
+    cross = np.ascontiguousarray(signature.T @ mixtures)
+    gram_before = gram.copy()
+    cross_before = cross.copy()
+
+    expected = solve_lsei_interior(gram, cross, backend="numpy")
+    actual_first = np.asarray(deconrnaseq_rust.solve_lsei_interior(gram, cross))
+    actual_second = np.asarray(deconrnaseq_rust.solve_lsei_interior(gram, cross))
+
+    np.testing.assert_allclose(actual_first, expected, rtol=0.0, atol=1e-12)
+    np.testing.assert_array_equal(actual_second, actual_first)
+    np.testing.assert_array_equal(gram, gram_before)
+    np.testing.assert_array_equal(cross, cross_before)
+
+
+@pytest.mark.skipif(not drs.rust_available(), reason="rust backend not installed")
+def test_legacy_rust_wheel_falls_back_safely(signatures, mixtures_noisy, monkeypatch):
+    """A pre-upgrade Rust wheel must retain the former hybrid code path."""
+    import deconrnaseq_rust
+
+    a = signatures.to_numpy(np.float64)
+    y = mixtures_noisy.to_numpy(np.float64)
+    expected = deconvolve_core(
+        a, y, use_scale=False, solver="interior", backend="numpy"
+    )
+    monkeypatch.delattr(deconrnaseq_rust, "solve_lsei_interior")
+    actual = deconvolve_core(a, y, use_scale=False, solver="interior", backend="rust")
+
+    np.testing.assert_allclose(actual, expected, rtol=0.0, atol=1e-10)

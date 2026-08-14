@@ -59,6 +59,7 @@ deconrnaseq_py/
 │       ├── benchmark_results.csv     # 122 rows: full matrix incl. n=1/8/48 and synthetic 480/4800
 │       ├── full_call_timing.csv      # end-to-end deconrnaseq() vs R full_function
 │       ├── accuracy_results.csv      # every hard gate, measured values, pass flags
+│       ├── rust_scratch_buffer_ab.csv # 5-round old/new Rust A/B; bitwise identity + timing summary
 │       └── profile_baseline_loop.txt # cProfile: why the faithful baseline is slow (12,240 tiny solves/run)
 │
 ├── examples/

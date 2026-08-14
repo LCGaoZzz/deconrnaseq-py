@@ -47,3 +47,26 @@ def test_rust_matches_numpy(signatures, mixtures_noisy):
     a = deconvolve_core(A, Y, use_scale=False, solver="interior", backend="numpy")
     b = deconvolve_core(A, Y, use_scale=False, solver="interior", backend="rust")
     assert np.abs(a - b).max() <= 1e-10
+
+
+@pytest.mark.skipif(not drs.rust_available(), reason="rust backend not installed")
+def test_rust_enum_is_repeatable_and_preserves_inputs(signatures, mixtures_noisy):
+    """Guard the direct Rust boundary kernel used by the interior solver."""
+    import deconrnaseq_rust
+    from deconrnaseq.solvers import solve_lsei_enum_fast
+
+    signature = np.ascontiguousarray(signatures.to_numpy(np.float64))
+    mixtures = np.ascontiguousarray(mixtures_noisy.to_numpy(np.float64))
+    gram = np.ascontiguousarray(signature.T @ signature)
+    cross = np.ascontiguousarray(signature.T @ mixtures)
+    gram_before = gram.copy()
+    cross_before = cross.copy()
+
+    expected = solve_lsei_enum_fast(gram, cross)
+    actual_first = np.asarray(deconrnaseq_rust.solve_lsei_enum(gram, cross))
+    actual_second = np.asarray(deconrnaseq_rust.solve_lsei_enum(gram, cross))
+
+    np.testing.assert_allclose(actual_first, expected, rtol=0.0, atol=1e-10)
+    np.testing.assert_array_equal(actual_second, actual_first)
+    np.testing.assert_array_equal(gram, gram_before)
+    np.testing.assert_array_equal(cross, cross_before)

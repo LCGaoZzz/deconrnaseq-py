@@ -103,7 +103,9 @@ fn solve_lsei_enum<'py>(
     let c = cross.as_array();
     let k_types = g.nrows();
     if g.ncols() != k_types || c.nrows() != k_types {
-        return Err(PyRuntimeError::new_err("gram must be (K,K) and cross (K,S)"));
+        return Err(PyRuntimeError::new_err(
+            "gram must be (K,K) and cross (K,S)",
+        ));
     }
     if k_types > 62 {
         return Err(PyRuntimeError::new_err(
@@ -116,9 +118,14 @@ fn solve_lsei_enum<'py>(
     let mut best_x = vec![0.0f64; k_types * n_samples]; // (K, S) row-major
 
     for size in 1..=k_types {
+        // KKT and RHS shapes depend only on support size. Reuse both scratch
+        // buffers for every support of that size instead of allocating and
+        // freeing two Vecs for each of the 2^K - 1 supports. The buffers are
+        // fully overwritten below, so arithmetic and tie-breaking order are unchanged.
+        let n = size + 1;
+        let mut kkt = vec![0.0f64; n * n];
+        let mut rhs = vec![0.0f64; n * n_samples];
         for support in combinations(k_types, size) {
-            let n = size + 1;
-            let mut kkt = vec![0.0f64; n * n];
             for (i, &si) in support.iter().enumerate() {
                 for (j, &sj) in support.iter().enumerate() {
                     kkt[i * n + j] = g[[si, sj]];
@@ -126,7 +133,7 @@ fn solve_lsei_enum<'py>(
                 kkt[i * n + size] = 1.0;
                 kkt[size * n + i] = 1.0;
             }
-            let mut rhs = vec![0.0f64; n * n_samples];
+            kkt[size * n + size] = 0.0;
             for (i, &si) in support.iter().enumerate() {
                 for sm in 0..n_samples {
                     rhs[i * n_samples + sm] = c[[si, sm]];
@@ -183,8 +190,8 @@ fn solve_lsei_enum<'py>(
             "no feasible solution for one or more samples",
         ));
     }
-    let arr = Array2::from_shape_vec((k_types, n_samples), best_x)
-        .expect("shape matches construction");
+    let arr =
+        Array2::from_shape_vec((k_types, n_samples), best_x).expect("shape matches construction");
     Ok(arr.into_pyarray_bound(py))
 }
 

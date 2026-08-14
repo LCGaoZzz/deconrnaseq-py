@@ -195,6 +195,82 @@ result = drs.deconrnaseq(
 All production solvers use float64 and solve the same constrained problem.
 Approximate algorithms and float32 are not used by default.
 
+## Benchmark results
+
+All values below are measured on the repository's fixed synthetic benchmark:
+5,000 genes, 8 cell types, and 48 samples. The reference implementation is
+Bioconductor DeconRNASeq 1.50.0 running under R 4.3.1. Python measurements use
+Windows 10, CPython 3.11.3, NumPy 2.2.6/OpenBLAS with one BLAS thread, and a
+Rust release build from rustc 1.97.1. File I/O, first import, and compilation
+are excluded. Results on other machines will vary.
+
+### Accuracy versus the original R package
+
+The Python/Rust implementation remains numerically equivalent to the original
+R output. All estimates use float64.
+
+| dataset | scaling | max absolute difference vs R 1.50.0 | acceptance gate | result |
+|---|---:|---:|---:|---:|
+| exact | off | `1.50e-14` | `1e-7` | pass |
+| exact | on | `5.00e-15` | `1e-7` | pass |
+| noisy | off | `4.88e-15` | `1e-6` | pass |
+| noisy | on | `5.00e-15` | `1e-6` | pass |
+
+For the exact unscaled data, maximum error against the generator truth is
+`4.92e-13` and RMSE is `1.18e-13`. Across the four benchmark configurations,
+maximum row-sum error is `2.16e-14` and the minimum estimated proportion is
+`0.0`. The complete Rust-KKT change differs from the preceding hybrid
+Python/Rust path by at most `4.44e-16`, approximately one float64 rounding
+unit at this scale. It is numerically equivalent, although not promised to be
+bitwise identical on every platform.
+
+### Core solver speed versus R DeconRNASeq 1.50.0
+
+This comparison uses the original R `core_df` median and the current Rust
+`deconvolve_core()` median. It measures aligned/scaled matrix preparation plus
+the constrained solve, not DataFrame validation, PCA, plotting, or wrapping.
+
+| dataset | scaling | original R core | current Rust core | speedup vs R |
+|---|---:|---:|---:|---:|
+| exact | off | 50.0 ms | 0.124 ms | **403.6x** |
+| exact | on | 70.0 ms | 1.032 ms | **67.8x** |
+| noisy | off | 70.0 ms | 0.373 ms | **187.6x** |
+| noisy | on | 100.0 ms | 1.067 ms | **93.8x** |
+
+### End-to-end public API speed versus R
+
+The end-to-end measurement includes validation, gene alignment, PCA,
+deconvolution, and result wrapping. It is the more representative number for
+a normal `deconrnaseq()` call.
+
+| dataset | scaling | original R full call | deconrnaseq-py full call | speedup vs R |
+|---|---:|---:|---:|---:|
+| exact | off | 110 ms | 18.1 ms | **6.1x** |
+| exact | on | 140 ms | 20.4 ms | **6.9x** |
+| noisy | off | 140 ms | 18.4 ms | **7.6x** |
+| noisy | on | 230 ms | 20.4 ms | **11.3x** |
+
+### Gain from the complete Rust interior-KKT path
+
+The latest Rust change moves the equality KKT solve, feasibility
+classification, boundary collection, exact enumeration, and scatter into one
+compiled call. Relative to the preceding Python-KKT + Rust-enumeration path:
+
+| dataset | scaling | boundary samples | solver speedup | complete core speedup |
+|---|---:|---:|---:|---:|
+| exact | off | 0/48 | **3.656x** | **1.081x** |
+| exact | on | 39/48 | **1.106x** | **1.036x** |
+| noisy | off | 35/48 | **1.112x** | **1.084x** |
+| noisy | on | 47/48 | **1.106x** | **1.054x** |
+
+The focused Rust A/B used five alternating-process rounds, one BLAS thread,
+100 warmups, and 21 timing blocks per process. See the
+[full benchmark report](benchmarks/REPORT.md) and raw evidence for
+[Rust KKT A/B](benchmarks/results/rust_interior_kkt_ab.csv),
+[accuracy](benchmarks/results/accuracy_results.csv),
+[end-to-end timing](benchmarks/results/full_call_timing.csv), and
+[R timing](r_baseline/r_timing.csv).
+
 ## Input validation
 
 The public API rejects:
@@ -226,10 +302,11 @@ Run only the tests:
 python -m pytest tests -q
 ```
 
-The accepted reference run passes 49 tests. On the shipped 5,000-gene,
-8-cell-type, 48-sample data, the exact unscaled solution has maximum absolute
-error about `4.9e-13` against generator truth. Python/R regression thresholds
-are `1e-7` for exact mixtures and `1e-6` for noisy mixtures.
+The current dependency-minimal reference run passes 51 tests and skips one
+optional plotting test. On the shipped 5,000-gene, 8-cell-type, 48-sample
+data, the exact unscaled solution has maximum absolute error about `4.9e-13`
+against generator truth. Python/R regression thresholds are `1e-7` for exact
+mixtures and `1e-6` for noisy mixtures.
 
 See [REPRODUCING.md](REPRODUCING.md) for reviewer instructions and
 [benchmarks/REPORT.md](benchmarks/REPORT.md) for methodology, measured timings,

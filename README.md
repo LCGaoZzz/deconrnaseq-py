@@ -66,12 +66,26 @@ python -m pip install ".[test]"
 ### Optional Rust acceleration
 
 The NumPy backend is complete and is used automatically when the Rust module
-is absent. To compile the optional Rust backend locally, install Rust and
-Maturin, then run:
+is absent. The extension is packaged separately as `deconrnaseq-rust` and
+installs the importable module `deconrnaseq_rust`; it can therefore coexist
+with the pure-Python `deconrnaseq-py` distribution without replacing its
+package metadata.
+
+To compile and install both distributions locally, install Rust and run these
+commands from the repository root:
 
 ```bash
-python -m pip install maturin
-maturin develop --release --manifest-path rust/Cargo.toml
+python -m pip install .
+python -m pip install ./rust
+```
+
+For a release wheel instead of an in-place installation:
+
+```bash
+python -m pip install "maturin>=1.7,<2"
+cd rust
+python -m maturin build --release
+python -m pip install target/wheels/deconrnaseq_rust-*.whl
 ```
 
 Confirm the installed version and backend:
